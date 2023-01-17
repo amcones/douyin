@@ -194,5 +194,6 @@ $ git push -f origin feature/add-function
 - controller
 - service
 - entity
+- config
 - api
 - doc
