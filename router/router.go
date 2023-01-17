@@ -1,10 +1,12 @@
 package router
 
 import (
+	"douyin/models"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouter(r *gin.Engine) {
+	models.ConnDB()
 	// public directory is used to serve static resources
 	r.Static("/static", "./public")
 
