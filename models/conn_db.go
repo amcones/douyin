@@ -7,10 +7,12 @@ import (
 	"gorm.io/gorm"
 )
 
+var Db *gorm.DB
+
 func ConnDB() {
 	DbConf := config.Conf.DB
 	var err error
-	Db, _ := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@%s(%s)/%s?charset=%s&parseTime=%v&loc=%s",
+	Db, _ = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@%s(%s)/%s?charset=%s&parseTime=%v&loc=%s",
 		DbConf.Username,
 		DbConf.Password,
 		DbConf.Net,
