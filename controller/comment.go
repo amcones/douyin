@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -88,5 +89,10 @@ func CommentList(c *gin.Context) {
 		return
 	}
 	comments := GetComments(videoID)
+	sort.Slice(comments, func(i int, j int) bool {
+		ti, _ := time.Parse(time.UnixDate, comments[i].CreateDate)
+		tj, _ := time.Parse(time.UnixDate, comments[i].CreateDate)
+		return ti.After(tj)
+	})
 	c.JSON(http.StatusOK, CommentListResponse{Response{StatusCode: 0}, comments})
 }
