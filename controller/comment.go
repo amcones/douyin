@@ -47,7 +47,6 @@ func GetComments(videoID int) []models.Comment {
 func CommentAction(c *gin.Context) {
 	token := c.Query("token")
 	actionType := c.Query("action_type")
-	timestr := time.Now().Format(time.UnixDate)
 
 	if user, exist := SelectToken(token); exist {
 		if actionType == "1" {
@@ -56,7 +55,7 @@ func CommentAction(c *gin.Context) {
 				ID:         NewCommentID(),
 				UserInfo:   user,
 				Content:    text,
-				CreateDate: timestr,
+				CreateDate: time.Now(),
 			}
 			AddComment(newComment)
 			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 0}, *newComment})
@@ -90,9 +89,7 @@ func CommentList(c *gin.Context) {
 	}
 	comments := GetComments(videoID)
 	sort.Slice(comments, func(i int, j int) bool {
-		ti, _ := time.Parse(time.UnixDate, comments[i].CreateDate)
-		tj, _ := time.Parse(time.UnixDate, comments[i].CreateDate)
-		return ti.After(tj)
+		return comments[i].CreateDate.After(comments[j].CreateDate)
 	})
 	c.JSON(http.StatusOK, CommentListResponse{Response{StatusCode: 0}, comments})
 }
