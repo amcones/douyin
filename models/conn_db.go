@@ -20,11 +20,7 @@ func ConnDB() {
 		DbConf.ParseTime,
 		DbConf.Loc,
 	)), &gorm.Config{})
-	err = Db.AutoMigrate(&UserInfo{})
-	if err != nil {
-		panic(err)
-	}
-	err = Db.AutoMigrate(&Comment{})
+	err = Db.AutoMigrate(&UserInfo{}, &Comment{})
 	if err != nil {
 		panic(err)
 	}
