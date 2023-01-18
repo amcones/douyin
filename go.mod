@@ -3,13 +3,13 @@ module douyin
 go 1.19
 
 require (
+	github.com/BurntSushi/toml v1.2.1
 	github.com/gin-gonic/gin v1.8.2
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
