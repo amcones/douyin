@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
-	"time"
 )
 
 type CommentActionResponse struct {
@@ -20,11 +19,13 @@ type CommentListResponse struct {
 	comments []models.Comment
 }
 
+// SelectToken 根据Token获取用户信息，如果不存在，exist为false
 func SelectToken(token string) (user models.UserInfo, exist bool) {
 
 	return
 }
 
+// NewCommentID 获取新的ID（逐渐增加）
 func NewCommentID() (id int) {
 	id = 1
 	return
@@ -35,10 +36,12 @@ func AddComment(comment *models.Comment) error {
 	return nil
 }
 
+// DeleteComment 删除某个视频下的某条评论
 func DeleteComment(videoID int, commentID int) {
 
 }
 
+// GetComments 获取某个视频下的所有评论切片
 func GetComments(videoID int) []models.Comment {
 	return nil
 }
@@ -52,10 +55,9 @@ func CommentAction(c *gin.Context) {
 		if actionType == "1" {
 			text := c.Query("comment_text")
 			newComment := &models.Comment{
-				ID:         NewCommentID(),
-				UserInfo:   user,
-				Content:    text,
-				CreateDate: time.Now(),
+				ID:       NewCommentID(),
+				UserInfo: user,
+				Content:  text,
 			}
 			AddComment(newComment)
 			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 0}, *newComment})
