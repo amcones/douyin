@@ -20,7 +20,7 @@ func ConnDB() {
 		DbConf.ParseTime,
 		DbConf.Loc,
 	)), &gorm.Config{})
-	err = Db.AutoMigrate() //TODO:在这里添加需要创建的表结构来自动创建表
+	err = Db.AutoMigrate(&UserInfo{}, &Comment{})
 	if err != nil {
 		panic(err)
 	}
