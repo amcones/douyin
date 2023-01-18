@@ -12,7 +12,7 @@ var Db *gorm.DB
 func ConnDB() {
 	DbConf := config.Conf.DB
 	var err error
-	Db, _ = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@%s(%s)/%s?charset=%s&parseTime=%v&loc=%s",
+	Db, err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@%s(%s)/%s?charset=%s&parseTime=%v&loc=%s",
 		DbConf.Username,
 		DbConf.Password,
 		DbConf.Net,
@@ -22,7 +22,7 @@ func ConnDB() {
 		DbConf.ParseTime,
 		DbConf.Loc,
 	)), &gorm.Config{})
-	err = Db.AutoMigrate(&UserInfo{}, &Comment{})
+	err = Db.AutoMigrate(&UserInfo{}, &Comment{}, &Video{})
 	if err != nil {
 		panic(err)
 	}
