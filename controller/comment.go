@@ -2,6 +2,7 @@ package controller
 
 import (
 	"douyin/models"
+	"douyin/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,12 +18,6 @@ type CommentActionResponse struct {
 type CommentListResponse struct {
 	Response
 	comments []models.Comment
-}
-
-// SelectToken 根据Token获取用户信息，如果不存在，exist为false
-func SelectToken(token string) (user models.UserInfo, exist bool) {
-
-	return
 }
 
 // NewCommentID 获取新的ID（逐渐增加）
@@ -51,7 +46,7 @@ func CommentAction(c *gin.Context) {
 	token := c.Query("token")
 	actionType := c.Query("action_type")
 
-	if user, exist := SelectToken(token); exist {
+	if user, exist := service.SelectToken(token); exist {
 		if actionType == "1" {
 			text := c.Query("comment_text")
 			newComment := &models.Comment{
