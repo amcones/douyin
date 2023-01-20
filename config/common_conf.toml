@@ -1,0 +1,2 @@
+[Jwt]
+secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
