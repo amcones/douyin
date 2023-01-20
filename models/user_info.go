@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"log"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -12,12 +13,7 @@ type UserInfo struct {
 	Password      string `gorm:"type:varchar(255) not null;"`
 	FollowCount   int    `gorm:"default:0" json:"follow_count"`
 	FollowerCount int    `gorm:"default:0" json:"follower_count"`
-}
-
-// FrontedUserInfo IsFollow字段不应该出现在数据库中，固分离
-type FrontedUserInfo struct {
-	UserInfo
-	IsFollow bool `json:"is_follow"`
+	IsFollow bool `gorm:"-" json:"is_follow"`
 }
 
 // ValidatePassword 校验密码
@@ -33,7 +29,7 @@ func GetUserInfoById(id interface{}) UserInfo {
 	userInfo := UserInfo{}
 	res := Db.First(&userInfo, id)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		panic(res.Error)
+		log.Fatal(res.Error)
 	}
 	return userInfo
 }
@@ -43,7 +39,7 @@ func GetUserInfoByName(name string) UserInfo {
 	userInfo := UserInfo{}
 	res := Db.Where("name = ?", name).First(&userInfo)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		panic(res.Error)
+		log.Fatal(res.Error)
 	}
 	return userInfo
 }
@@ -52,7 +48,8 @@ func GetUserInfoByName(name string) UserInfo {
 func CreateUserInfo(name string, password string) UserInfo {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		return UserInfo{}
 	}
 	userInfo := UserInfo{
 		Name:     name,

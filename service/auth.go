@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
+	"log"
 )
 
 type DouyinUserClaims struct {
@@ -39,7 +40,8 @@ func CreateTokenWithDuration(info models.UserInfo, expire time.Duration) string 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedString, err := token.SignedString(secret)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		return ""
 	}
 	return signedString
 }
