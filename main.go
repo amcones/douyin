@@ -1,14 +1,17 @@
 package main
 
 import (
+	"douyin/models"
 	"douyin/router"
-	"github.com/gin-gonic/gin"
+	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	r := gin.Default()
+	h := server.Default(server.WithHostPorts("127.0.0.1:8080"))
 
-	router.InitRouter(r)
+	models.ConnDB()
 
-	_ = r.Run()
+	router.RegisterRoute(h)
+
+	h.Spin()
 }
