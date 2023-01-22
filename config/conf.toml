@@ -1,10 +1,16 @@
 # 数据库配置
 [mysql]
 username = "root"
-password = "12345678"
+password = "yourpwdhere"
 net = "tcp"
-addr = "127.0.0.1"
+addr = "localhost"
 dbname = "douyin"
 charset = "utf8mb4"
 parse_time = true
 loc = "Local"
+[jwt]
+secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
+[redis]
+net = "tcp"
+address = "localhost"
+password = "yourpwdhere"

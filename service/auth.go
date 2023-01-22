@@ -5,8 +5,8 @@ import (
 	"douyin/models"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
-	"time"
 	"log"
+	"time"
 )
 
 type DouyinUserClaims struct {
@@ -24,7 +24,7 @@ func GetDouyinUserClaims(info models.UserInfo, expire time.Duration) DouyinUserC
 	}
 }
 
-var secret = config.CommonConf.JWT.SecretKey
+var secret = config.Conf.JWT.SecretKey
 
 // CreateToken 通过UserInfo创建一个Token字符串，默认1天过期。
 // info: 用户信息实体
