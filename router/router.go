@@ -1,21 +1,19 @@
 package router
 
 import (
-	"douyin/models"
-	"github.com/gin-gonic/gin"
+	"douyin/controller"
+	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
-func InitRouter(r *gin.Engine) {
-	models.ConnDB()
-	models.ConnRedis()
-	// public directory is used to serve static resources
-	r.Static("/static", "./public")
+func RegisterRoute(h *server.Hertz) {
+	// public directory is used to serve public resources
+	h.Static("/public", ".")
 
-	//apiRouter := r.Group("/douyin")
+	apiRouter := h.Group("/douyin")
 
 	//// basic apis
-	//apiRouter.GET("/feed/", controller.Feed)
-	//apiRouter.GET("/user/", controller.UserInfo)
+	apiRouter.GET("/feed/", controller.Feed)
+	//apiRouter.GET("/user/", controller.User)
 	//apiRouter.POST("/user/register/", controller.Register)
 	//apiRouter.POST("/user/login/", controller.Login)
 	//apiRouter.POST("/publish/action/", controller.Publish)
