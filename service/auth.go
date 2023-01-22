@@ -24,7 +24,7 @@ func GetDouyinUserClaims(u models.User, expire time.Duration) DouyinUserClaims {
 	}
 }
 
-var secret = config.CommonConf.JWT.SecretKey
+var secret = config.Conf.JWT.SecretKey
 
 // CreateToken 通过UserInfo创建一个Token字符串，默认1天过期。
 // info: 用户信息实体

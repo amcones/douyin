@@ -3,6 +3,7 @@ package models
 import (
 	"douyin/config"
 	"fmt"
+	"github.com/gomodule/redigo/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,16 @@ func ConnDB() {
 	)), &gorm.Config{})
 	err = Db.AutoMigrate(&User{}, &Comment{}, &Video{}, &Favorite{})
 	if err != nil {
+		panic(err)
+	}
+}
+
+var redisConn redis.Conn
+
+func ConnRedis() {
+	redisConfig := config.Conf.Redis
+	redisConn, _ = redis.Dial(redisConfig.Net, redisConfig.Address)
+	if _, err := redisConn.Do("AUTH", redisConfig.Password); err != nil {
 		panic(err)
 	}
 }
