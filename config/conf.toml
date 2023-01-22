@@ -1,9 +1,9 @@
 # 数据库配置
 [mysql]
-username = "douyin"
-password = "douyin@123"
+username = "root"
+password = "yourpwdhere"
 net = "tcp"
-addr = "i9mc.cn:5201"
+addr = "localhost"
 dbname = "douyin"
 charset = "utf8mb4"
 parse_time = true
@@ -12,5 +12,5 @@ loc = "Local"
 secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
 [redis]
 net = "tcp"
-address = "i9mc.cn:5202"
-password = "douyin@123456"
+address = "localhost"
+password = "yourpwdhere"
