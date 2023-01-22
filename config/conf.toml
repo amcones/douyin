@@ -1,10 +1,16 @@
 # 数据库配置
 [mysql]
-username = "root"
-password = "12345678"
+username = "douyin"
+password = "douyin@123456"
 net = "tcp"
-addr = "127.0.0.1"
+addr = "i9mc.cn"
 dbname = "douyin"
 charset = "utf8mb4"
 parse_time = true
 loc = "Local"
+[jwt]
+secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
+[redis]
+net = "tcp"
+address = "i9mc.cn:5202"
+password = "douyin@12345"
