@@ -6,10 +6,11 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/cloudwego/hertz v0.5.1
 	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/gomodule/redigo v1.8.9
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	golang.org/x/crypto v0.5.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
-	github.com/gomodule/redigo v1.8.9
 )
 
 require (
@@ -17,16 +18,19 @@ require (
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7 // indirect
 	github.com/bytedance/sonic v1.5.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06 // indirect
+	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/cloudwego/netpoll v0.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
-	github.com/hertz-contrib/cors v0.0.0-20220601061225-50f4e582beaf // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/mozillazg/go-httpheader v0.3.1 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	github.com/tidwall/gjson v1.13.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
