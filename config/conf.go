@@ -18,14 +18,21 @@ type Mysql struct {
 
 type Redis struct {
 	Net      string
-	Address  string
+	Addr     string
 	Password string
+}
+
+type COS struct {
+	Addr      string
+	SecretId  string
+	SecretKey string
 }
 
 type Config struct {
 	DB    Mysql `toml:"mysql"`
 	JWT   Jwt   `toml:"jwt"`
 	Redis Redis `toml:"redis"`
+	COS   COS   `toml:"cos"`
 }
 
 type Jwt struct {

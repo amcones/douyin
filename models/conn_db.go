@@ -33,7 +33,7 @@ var redisConn redis.Conn
 
 func ConnRedis() {
 	redisConfig := config.Conf.Redis
-	redisConn, _ = redis.Dial(redisConfig.Net, redisConfig.Address)
+	redisConn, _ = redis.Dial(redisConfig.Net, redisConfig.Addr)
 	if _, err := redisConn.Do("AUTH", redisConfig.Password); err != nil {
 		panic(err)
 	}
