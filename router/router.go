@@ -7,6 +7,7 @@ import (
 
 func InitRouter(r *gin.Engine) {
 	models.ConnDB()
+	models.ConnRedis()
 	// public directory is used to serve static resources
 	r.Static("/static", "./public")
 
