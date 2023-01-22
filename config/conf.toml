@@ -14,3 +14,7 @@ secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
 net = "tcp"
 address = "localhost"
 password = "yourpwdhere"
+[cos]
+addr = "https://yourbucket-appid.cos.ap-region.myqcloud.com"
+secretId ="YourSecretIdHere,ReplaceBeforeProduction"
+secretKey = "YourSecretKeyHere,ReplaceBeforeProduction"
