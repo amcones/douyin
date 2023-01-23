@@ -13,7 +13,7 @@ func RegisterRoute(h *server.Hertz) {
 
 	//// basic apis
 	apiRouter.GET("/feed/", controller.Feed)
-	//apiRouter.GET("/user/", controller.User)
+	apiRouter.GET("/user/", controller.User)
 	//apiRouter.POST("/user/register/", controller.Register)
 	//apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.POST("/publish/action/", controller.Publish)
