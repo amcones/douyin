@@ -71,7 +71,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 				StatusCode: http.StatusNotImplemented,
 				StatusMsg:  fmt.Sprintf("%s", err),
 			})
-		log.Fatal(err)
+		log.Println(err)
 	} else {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: http.StatusOK,

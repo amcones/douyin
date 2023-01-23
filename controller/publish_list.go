@@ -6,32 +6,31 @@ import (
 	"douyin/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"
-	"time"
 )
 
-type FeedResponse struct {
+type PublishListResponse struct {
 	Response
 	VideoList []models.Video `json:"video_list"`
-	NextTime  int64          `json:"next_time"`
 }
 
-func Feed(_ context.Context, c *app.RequestContext) {
-	var videoList []models.Video
-
-	// 按照投稿时间降序，一次最多30条
-	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
+// PublishList 根据id查询用户所有投稿视频
+func PublishList(_ context.Context, c *app.RequestContext) {
+	id := c.Query("user_id")
 	var user models.User
-	// 使用key计算得到预签名url
+	models.Db.First(&user, id)
+	var videoList []models.Video
+	models.Db.Where("author_id=?", id).Find(&videoList)
 	for i := range videoList {
 		models.Db.First(&user, videoList[i].AuthorID)
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
 	}
-
-	c.JSON(http.StatusOK, FeedResponse{
-		Response:  Response{StatusCode: http.StatusOK, StatusMsg: "feed getting succeeded"},
+	c.JSON(http.StatusOK, PublishListResponse{
+		Response: Response{
+			StatusCode: http.StatusOK,
+			StatusMsg:  "publish list succeeded",
+		},
 		VideoList: videoList,
-		NextTime:  time.Now().Unix(),
 	})
 }

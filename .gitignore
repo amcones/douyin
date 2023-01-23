@@ -24,3 +24,5 @@ config/conf.toml
 /public/*
 
 .idea
+
+.DS_store
