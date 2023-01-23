@@ -4,8 +4,8 @@ import (
 	"context"
 	"douyin/config"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"io"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"time"
@@ -41,21 +41,11 @@ func GetClient() *cos.Client {
 }
 
 // UploadFile 上传文件
-func UploadFile(key string, file *multipart.FileHeader) error {
-	fd, err := file.Open()
-	defer func(fd multipart.File) {
-		err := fd.Close()
-		if err != nil {
-			log.Fatal("cannot open file", err)
-		}
-	}(fd)
-	_, err = client.Object.Put(
-		context.Background(), key, fd, nil,
+func UploadFile(key string, file io.Reader) error {
+	_, err := client.Object.Put(
+		context.Background(), key, file, nil,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // GetSignUrl 返回预签名Url
@@ -63,7 +53,8 @@ func GetSignUrl(key string) string {
 	ctx := context.Background()
 	presignedUrl, err := client.Object.GetPresignedURL(ctx, http.MethodGet, key, secretId, secretKey, time.Hour, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return ""
 	}
 	return presignedUrl.String()
 }
