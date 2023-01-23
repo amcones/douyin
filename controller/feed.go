@@ -20,8 +20,11 @@ func Feed(_ context.Context, c *app.RequestContext) {
 
 	// 按照投稿时间降序，一次最多30条
 	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
+	var user models.User
 	// 使用key计算得到预签名url
 	for i := range videoList {
+		models.Db.First(&user, videoList[i].AuthorID)
+		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
 	}
