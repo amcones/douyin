@@ -20,4 +20,9 @@ go.work
 # mysql config file
 config/conf.toml
 
+# static resources
+/public/*
+
 .idea
+
+.DS_store

@@ -1,14 +1,22 @@
 package main
 
 import (
+	"douyin/models"
 	"douyin/router"
-	"github.com/gin-gonic/gin"
+	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	r := gin.Default()
+	h := server.Default(
+		server.WithHostPorts("127.0.0.1:8080"),
+		server.WithMaxRequestBodySize(20<<40), // 提高request body的容量到20MB
+	)
 
-	router.InitRouter(r)
+	models.ConnDB()
 
-	_ = r.Run()
+	models.ConnRedis()
+
+	router.RegisterRoute(h)
+
+	h.Spin()
 }
