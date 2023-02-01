@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"douyin/models"
+	"douyin/service"
 	"douyin/utils"
 	"image/jpeg"
 	"io"
@@ -24,15 +25,29 @@ import (
 func Publish(_ context.Context, c *app.RequestContext) {
 	// 1. 根据token得到author
 	token := c.FormValue("token")
-	fmt.Println(token)
-	var demoUser models.User
-	models.Db.Where("ID=?", 2).First(&demoUser)
+	if token == nil {
+		c.JSON(http.StatusOK,
+			Response{
+				StatusCode: 1,
+				StatusMsg:  "请登录后再操作",
+			})
+		return
+	}
+	user, exist := service.SelectToken(string(token))
+	if !exist {
+		c.JSON(http.StatusOK,
+			Response{
+				StatusCode: 1,
+				StatusMsg:  "请登录后再操作",
+			})
+		return
+	}
 
 	// 2. 生成文件名
 	file, _ := c.FormFile("data")
 	var idx int64
 	var video models.Video
-	models.Db.Where("author_id=?", demoUser.ID).Find(&video).Count(&idx)
+	models.Db.Where("author_id=?", user.ID).Find(&video).Count(&idx)
 	idx += 1
 	playKey := "videos/" + strconv.FormatInt(idx, 10) + ".mp4"
 	coverKey := "covers/" + strconv.FormatInt(idx, 10) + ".png"
@@ -52,7 +67,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 
 	// 5. 保存key到数据库
 	video = models.Video{
-		Author:        demoUser,
+		Author:        user,
 		PlayKey:       playKey,
 		CoverKey:      coverKey,
 		FavoriteCount: 0,
@@ -64,7 +79,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 		FavoriteUsers: nil,
 		Comments:      nil,
 	}
-	err = models.Db.Model(&demoUser).Association("Videos").Append(&video)
+	err = models.Db.Model(&user).Association("Videos").Append(&video)
 	if err != nil {
 		c.JSON(http.StatusNotImplemented,
 			Response{

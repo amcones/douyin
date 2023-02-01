@@ -54,12 +54,13 @@ func SelectToken(tokenString string) (u models.User, exist bool) {
 		}
 		return secret, nil
 	})
-	if claims, ok := token.Claims.(jwt.MapClaims); !ok && token.Valid {
-		id := claims["id"]
+	if claims, _ := token.Claims.(jwt.MapClaims); token.Valid {
+		log.Printf("Claim: %v\n", claims)
+		id := claims["UserID"]
 		userInfo := models.GetUserInfoById(id)
 		return userInfo, true
 	} else {
-		log.Fatal(fmt.Errorf("unexpected error when solving token: %v", err))
+		log.Println(fmt.Errorf("unexpected error when solving token: %v", err))
 		return models.User{}, false
 	}
 }

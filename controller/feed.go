@@ -30,7 +30,7 @@ func Feed(_ context.Context, c *app.RequestContext) {
 	}
 
 	c.JSON(http.StatusOK, FeedResponse{
-		Response:  Response{StatusCode: http.StatusOK, StatusMsg: "feed getting succeeded"},
+		Response:  Response{StatusCode: 0, StatusMsg: "feed getting succeeded"},
 		VideoList: videoList,
 		NextTime:  time.Now().Unix(),
 	})

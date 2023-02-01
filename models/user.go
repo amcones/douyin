@@ -10,7 +10,7 @@ import (
 type User struct {
 	ID            int     `json:"id"`
 	Name          string  `gorm:"type:varchar(32) not null;uniqueIndex" json:"name"`
-	Password      string  `gorm:"type:varchar(255) not null;"`
+	Password      string  `gorm:"type:varchar(255) not null;" json:"-"`
 	FollowCount   uint    `gorm:"default:0" json:"follow_count"`
 	FollowerCount uint    `gorm:"default:0" json:"follower_count"`
 	IsFollow      bool    `gorm:"-" json:"is_follow"`
