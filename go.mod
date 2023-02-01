@@ -8,6 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/gomodule/redigo v1.8.9
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
+	github.com/u2takey/ffmpeg-go v0.4.1
 	golang.org/x/crypto v0.5.0
 	gorm.io/driver/mysql v1.4.5
 	gorm.io/gorm v1.24.3
@@ -38,7 +39,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/u2takey/ffmpeg-go v0.4.1 // indirect
 	github.com/u2takey/go-utils v0.3.1 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.4.0 // indirect

@@ -22,11 +22,11 @@ func (user *User) ValidatePassword(password string) bool {
 	hashedStoredPassword := []byte(user.Password)
 	passwordToValidate := []byte(password)
 	err := bcrypt.CompareHashAndPassword(hashedStoredPassword, passwordToValidate)
-	return err != nil
+	return err == nil
 }
 
 // GetUserInfoById 通过ID获取UserInfo实例
-func (user *User) GetUserInfoById(id interface{}) User {
+func GetUserInfoById(id interface{}) User {
 	userInfo := User{}
 	res := Db.First(&userInfo, id)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
@@ -36,17 +36,17 @@ func (user *User) GetUserInfoById(id interface{}) User {
 }
 
 // GetUserInfoByName 通过Name获取UserInfo实例
-func (user *User) GetUserInfoByName(name string) User {
+func GetUserInfoByName(name string) (User, bool) {
 	userInfo := User{}
 	res := Db.Where("name = ?", name).First(&userInfo)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		log.Fatal(res.Error)
+		return userInfo, false
 	}
-	return userInfo
+	return userInfo, true
 }
 
 // CreateUserInfo 通过Name和Password创建UserInfo实例
-func (user *User) CreateUserInfo(name string, password string) User {
+func CreateUserInfo(name string, password string) User {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal(err)
