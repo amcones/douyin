@@ -18,7 +18,7 @@ type Mysql struct {
 
 type Redis struct {
 	Net      string
-	Addr     string
+	Address  string
 	Password string
 }
 

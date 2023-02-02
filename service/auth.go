@@ -24,7 +24,7 @@ func GetDouyinUserClaims(u models.User, expire time.Duration) DouyinUserClaims {
 	}
 }
 
-var secret = config.Conf.JWT.SecretKey
+var secret = []byte(config.Conf.JWT.SecretKey)
 
 // CreateToken 通过UserInfo创建一个Token字符串，默认1天过期。
 // info: 用户信息实体
@@ -54,12 +54,13 @@ func SelectToken(tokenString string) (u models.User, exist bool) {
 		}
 		return secret, nil
 	})
-	if claims, ok := token.Claims.(jwt.MapClaims); !ok && token.Valid {
-		id := claims["id"]
-		userInfo := u.GetUserInfoById(id)
+	if claims, _ := token.Claims.(jwt.MapClaims); token.Valid {
+		log.Printf("Claim: %v\n", claims)
+		id := claims["UserID"]
+		userInfo := models.GetUserInfoById(id)
 		return userInfo, true
 	} else {
-		log.Fatal(fmt.Errorf("unexpected error when solving token: %v", err))
+		log.Println(fmt.Errorf("unexpected error when solving token: %v", err))
 		return models.User{}, false
 	}
 }
