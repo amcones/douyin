@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"douyin/config"
 	"douyin/models"
 	"douyin/utils"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -15,6 +16,17 @@ type PublishListResponse struct {
 
 // PublishList 根据id查询用户所有投稿视频
 func PublishList(_ context.Context, c *app.RequestContext) {
+	userObj, _ := c.Get(config.IdentityKey)
+	if userObj == nil {
+		c.JSON(http.StatusOK, PublishListResponse{
+			Response: Response{
+				StatusCode: 1,
+				StatusMsg:  "token获取失败",
+			},
+			VideoList: []models.Video{},
+		})
+		return
+	}
 	id := c.Query("user_id")
 	var user models.User
 	models.Db.First(&user, id)
@@ -28,7 +40,7 @@ func PublishList(_ context.Context, c *app.RequestContext) {
 	}
 	c.JSON(http.StatusOK, PublishListResponse{
 		Response: Response{
-			StatusCode: http.StatusOK,
+			StatusCode: 0,
 			StatusMsg:  "publish list succeeded",
 		},
 		VideoList: videoList,

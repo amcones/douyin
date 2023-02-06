@@ -5,6 +5,11 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+var (
+	IdentityKey = "token"
+	UserIDKey   = "userID"
+)
+
 type Mysql struct {
 	Username  string
 	Password  string

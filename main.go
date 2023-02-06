@@ -1,6 +1,7 @@
 package main
 
 import (
+	"douyin/middleware"
 	"douyin/models"
 	"douyin/router"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -13,8 +14,9 @@ func main() {
 	)
 
 	models.ConnDB()
-
 	models.ConnRedis()
+
+	middleware.InitJwt()
 
 	router.RegisterRoute(h)
 

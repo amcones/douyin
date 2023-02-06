@@ -92,7 +92,7 @@ func UserRegister(_ context.Context, c *app.RequestContext) {
 	_, exist := models.GetUserInfoByName(username)
 	if exist {
 		c.JSON(http.StatusOK, UserRegisterResponse{
-			Response: Response{1, "username already exists"},
+			Response: Response{1, "用户名已存在"},
 		})
 		return
 	}
