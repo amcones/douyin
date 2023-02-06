@@ -2,8 +2,8 @@ package controller
 
 import (
 	"context"
+	"douyin/middleware"
 	"douyin/models"
-	"douyin/service"
 	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"gorm.io/gorm"
@@ -38,51 +38,10 @@ func User(_ context.Context, c *app.RequestContext) {
 	}
 }
 
-func checkUserParameter(username string, password string) (bool, string) {
-	if len(username) > 32 || username == "" {
-		return false, "username not valid"
-	}
-	if len(password) > 32 || password == "" {
-		return false, "password not valid"
-	}
-	return true, ""
-}
-
-func UserLogin(_ context.Context, c *app.RequestContext) {
-	username := c.Query("username")
-	password := c.Query("password")
-	argValid, reason := checkUserParameter(username, password)
-	if !argValid {
-		c.JSON(http.StatusOK, UserRegisterResponse{
-			Response: Response{1, reason},
-		})
-		return
-	}
-	user, exist := models.GetUserInfoByName(username)
-	if !exist {
-		c.JSON(http.StatusOK, UserRegisterResponse{
-			Response: Response{1, "username or password not match"},
-		})
-		return
-	}
-	passwordValid := user.ValidatePassword(password)
-	if !passwordValid {
-		c.JSON(http.StatusOK, UserRegisterResponse{
-			Response: Response{1, "username or password not match"},
-		})
-		return
-	}
-	c.JSON(http.StatusOK, UserRegisterResponse{
-		Response: Response{0, "ok"},
-		Token:    service.CreateToken(user),
-		UserID:   user.ID,
-	})
-}
-
 func UserRegister(_ context.Context, c *app.RequestContext) {
 	username := c.Query("username")
 	password := c.Query("password")
-	argValid, reason := checkUserParameter(username, password)
+	argValid, reason := middleware.CheckUserParameter(username, password)
 	if !argValid {
 		c.JSON(http.StatusOK, UserRegisterResponse{
 			Response: Response{1, reason},
@@ -97,9 +56,10 @@ func UserRegister(_ context.Context, c *app.RequestContext) {
 		return
 	}
 	user := models.CreateUserInfo(username, password)
+	token, _, _ := middleware.JwtMiddleware.TokenGenerator(user)
 	c.JSON(http.StatusOK, UserRegisterResponse{
 		Response: Response{0, "ok"},
-		Token:    service.CreateToken(user),
+		Token:    token,
 		UserID:   user.ID,
 	})
 }

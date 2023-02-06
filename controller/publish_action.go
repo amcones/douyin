@@ -6,6 +6,7 @@ import (
 	"douyin/config"
 	"douyin/models"
 	"douyin/utils"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"image/jpeg"
 	"io"
 	"mime/multipart"
@@ -16,7 +17,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 	"image"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -53,7 +53,7 @@ func saveTmpPlay(path string, fileHeader *multipart.FileHeader) error {
 }
 
 // Publish 上传视频接口
-func Publish(_ context.Context, c *app.RequestContext) {
+func Publish(ctx context.Context, c *app.RequestContext) {
 	userObj, _ := c.Get(config.IdentityKey)
 	if userObj == nil {
 		c.JSON(http.StatusOK, PublishListResponse{
@@ -66,7 +66,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 		return
 	}
 	user := userObj.(models.User)
-	log.Printf("用户准备上传视频 ID: %v\n", user.ID)
+	hlog.CtxDebugf(ctx, "用户准备上传视频 ID: %v", user.ID)
 
 	// 2. 生成文件名  新：根据文件md5生成文件名，以散列值的前2位作为前缀，其他的作为后缀
 	file, _ := c.FormFile("data")
@@ -89,14 +89,13 @@ func Publish(_ context.Context, c *app.RequestContext) {
 		publishFail("视频上传失败", c)
 		return
 	}
-
 	// 4. 截取视频封面并上传
 	// 4.1 保存视频到本地临时文件
 	os.MkdirAll(tmpFolder, os.ModePerm)
 	tmpPath := filepath.Join(tmpFolder, videoMD5)
 	err = saveTmpPlay(tmpPath, file)
 	if err != nil {
-		log.Printf("保存文件失败 %s %v\n", tmpPath, err)
+		hlog.CtxWarnf(ctx, "保存文件失败 %s %v", tmpPath, err)
 		publishFail("临时文件保存失败", c)
 		return
 	}
@@ -147,7 +146,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 				StatusCode: 1,
 				StatusMsg:  fmt.Sprintf("%s", err),
 			})
-		log.Println(err)
+		hlog.CtxWarnf(ctx, "视频发布失败 %v", err)
 	} else {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 0,

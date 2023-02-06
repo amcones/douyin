@@ -18,7 +18,7 @@ var (
 	JwtMiddleware *jwt.HertzJWTMiddleware
 )
 
-func checkUserParameter(username string, password string) (bool, string) {
+func CheckUserParameter(username string, password string) (bool, string) {
 	if len(username) > 32 || username == "" {
 		return false, "用户名不合法"
 	}
@@ -39,7 +39,6 @@ func InitJwt() {
 		TokenHeadName: "Bearer",
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			userID, _ := c.Get(config.UserIDKey)
-			log.Printf("LoginResponse %v %v %v\n", code, token, expire)
 			c.JSON(code, controller.UserRegisterResponse{
 				Response: controller.Response{
 					StatusCode: 0,
@@ -52,7 +51,7 @@ func InitJwt() {
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 			username := c.Query("username")
 			password := c.Query("password")
-			argValid, reason := checkUserParameter(username, password)
+			argValid, reason := CheckUserParameter(username, password)
 			if !argValid {
 				return nil, errors.New(reason)
 			}
