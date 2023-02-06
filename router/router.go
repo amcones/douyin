@@ -2,8 +2,6 @@ package router
 
 import (
 	"douyin/controller"
-	"douyin/middleware"
-	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -17,9 +15,9 @@ func RegisterRoute(h *server.Hertz) {
 	apiRouter.GET("/feed/", controller.Feed)
 	apiRouter.GET("/user/", controller.User)
 	apiRouter.POST("/user/register/", controller.UserRegister)
-	apiRouter.POST("/user/login/", middleware.JwtMiddleware.LoginHandler)
-	apiRouter.POST("/publish/action/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.Publish}...)
-	apiRouter.GET("/publish/list/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.PublishList}...)
+	apiRouter.POST("/user/login/", controller.UserLogin)
+	apiRouter.POST("/publish/action/", controller.Publish)
+	apiRouter.GET("/publish/list/", controller.PublishList)
 	//
 	//// extra apis - I
 	//apiRouter.POST("/favorite/action/", controller.FavoriteAction)
