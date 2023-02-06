@@ -42,7 +42,6 @@ func Publish(_ context.Context, c *app.RequestContext) {
 			})
 		return
 	}
-
 	// 2. 生成文件名
 	file, _ := c.FormFile("data")
 	var idx int64
@@ -50,7 +49,7 @@ func Publish(_ context.Context, c *app.RequestContext) {
 	models.Db.Where("author_id=?", user.ID).Find(&video).Count(&idx)
 	idx += 1
 	playKey := "videos/" + strconv.FormatInt(idx, 10) + ".mp4"
-	coverKey := "covers/" + strconv.FormatInt(idx, 10) + ".png"
+	coverKey := "covers/" + strconv.FormatInt(idx, 10) + ".jpg"
 
 	// 3. 存入cos
 	var r io.Reader
