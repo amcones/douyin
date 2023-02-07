@@ -2,8 +2,8 @@ package controller
 
 import (
 	"context"
-	"douyin/middleware"
 	"douyin/models"
+	"douyin/utils"
 	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"gorm.io/gorm"
@@ -41,7 +41,7 @@ func User(_ context.Context, c *app.RequestContext) {
 func UserRegister(_ context.Context, c *app.RequestContext) {
 	username := c.Query("username")
 	password := c.Query("password")
-	argValid, reason := middleware.CheckUserParameter(username, password)
+	argValid, reason := utils.CheckUserParameter(username, password)
 	if !argValid {
 		c.JSON(http.StatusOK, UserRegisterResponse{
 			Response: Response{1, reason},
@@ -56,7 +56,7 @@ func UserRegister(_ context.Context, c *app.RequestContext) {
 		return
 	}
 	user := models.CreateUserInfo(username, password)
-	token, _, _ := middleware.JwtMiddleware.TokenGenerator(user)
+	token, _, _ := utils.CreateUserToken(user)
 	c.JSON(http.StatusOK, UserRegisterResponse{
 		Response: Response{0, "ok"},
 		Token:    token,

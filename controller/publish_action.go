@@ -6,19 +6,17 @@ import (
 	"douyin/config"
 	"douyin/models"
 	"douyin/utils"
+	"fmt"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"image"
 	"image/jpeg"
 	"io"
 	"mime/multipart"
-	"path/filepath"
-
-	//"douyin/utils"
-	"fmt"
-	"github.com/cloudwego/hertz/pkg/app"
-	ffmpeg "github.com/u2takey/ffmpeg-go"
-	"image"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -76,8 +74,8 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 	var r io.Reader
 	r, _ = file.Open()
 	var buf bytes.Buffer
-	io.TeeReader(r, &buf)
-	videoMD5, err := utils.FileMD5(&buf)
+	tee := io.TeeReader(r, &buf)
+	videoMD5, err := utils.FileMD5(tee)
 	if err != nil {
 		publishFail("视频散列失败", c)
 		return
@@ -106,8 +104,8 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 4.3 计算封面hash
-	io.TeeReader(r, &buf)
-	coverMD5, err := utils.FileMD5(&buf)
+	tee = io.TeeReader(r, &buf)
+	coverMD5, err := utils.FileMD5(tee)
 	if err != nil {
 		publishFail("封面散列失败", c)
 		return
