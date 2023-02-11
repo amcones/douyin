@@ -34,7 +34,7 @@ func DeleteComment(videoID int, commentID int) {
 	models.Db.Table("video_comments").Where("video_id = ? && comment_id = ?", videoID, commentID).Delete(nil)
 }
 
-// GetComments 获取某个视频下的所有评论
+// GetComments 获取某个视频下的所有评论切片
 func GetComments(videoID int) []models.Comment {
 	comments := make([]models.Comment, 0)
 	commentIDs := make([]int, 0)
@@ -89,7 +89,6 @@ func CommentList(_ context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "token获取失败"})
 		return
 	}
-
 	videoID, err := strconv.Atoi(c.Query("video_id"))
 	if err != nil {
 		fmt.Println(err)
