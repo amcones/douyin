@@ -5,6 +5,11 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+var (
+	IdentityKey = "token"
+	UserIDKey   = "userID"
+)
+
 type Mysql struct {
 	Username  string
 	Password  string
@@ -16,8 +21,27 @@ type Mysql struct {
 	Loc       string
 }
 
+type Redis struct {
+	Net      string
+	Address  string
+	Password string
+}
+
+type COS struct {
+	Addr      string
+	SecretId  string
+	SecretKey string
+}
+
 type Config struct {
-	DB Mysql `toml:"mysql"`
+	DB    Mysql `toml:"mysql"`
+	JWT   Jwt   `toml:"jwt"`
+	Redis Redis `toml:"redis"`
+	COS   COS   `toml:"cos"`
+}
+
+type Jwt struct {
+	SecretKey string
 }
 
 var Conf Config
