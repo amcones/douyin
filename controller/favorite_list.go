@@ -22,7 +22,9 @@ func FavoriteList(_ context.Context, c *app.RequestContext) {
 
 	models.Db.Table("user_favor_videos").Select("video_id").Where("user_id = ?", id).Find(&videoIdList)
 
-	models.Db.Where(videoIdList).Find(&videoList)
+	if len(videoIdList) > 0 {
+		models.Db.Where(videoIdList).Find(&videoList)
+	}
 
 	var user models.User
 
@@ -36,7 +38,7 @@ func FavoriteList(_ context.Context, c *app.RequestContext) {
 	c.JSON(http.StatusOK, FavoriteListResponse{
 		Response: Response{
 			StatusCode: 0,
-			StatusMsg:  "favorite list get succeed",
+			StatusMsg:  "favorite list get succeeded",
 		},
 		VideoList: videoList,
 	})

@@ -18,6 +18,6 @@ type Video struct {
 	Title         string `json:"title"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-	FavoriteUsers []*User    `gorm:"many2many:user_favor_videos"`
-	Comments      []*Comment `gorm:"many2many:video_comments"`
+	FavoriteUsers []*User    `gorm:"many2many:user_favor_videos"` //用户与点赞视频是many to many
+	Comments      []*Comment `json:"-"`                           // 视频与评论是has many关系
 }
