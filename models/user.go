@@ -19,10 +19,7 @@ type User struct {
 
 // ValidatePassword 校验密码
 func (user *User) ValidatePassword(password string) bool {
-	hashedStoredPassword := []byte(user.Password)
-	passwordToValidate := []byte(password)
-	err := bcrypt.CompareHashAndPassword(hashedStoredPassword, passwordToValidate)
-	return err == nil
+	return nil == bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 }
 
 // GetUserInfoById 通过ID获取UserInfo实例

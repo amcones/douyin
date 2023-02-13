@@ -8,35 +8,38 @@ import (
 	"net/http"
 )
 
-type FeedResponse struct {
+type FavoriteListResponse struct {
 	Response
 	VideoList []models.Video `json:"video_list"`
-	NextTime  int64          `json:"next_time,-"`
 }
 
-func Feed(_ context.Context, c *app.RequestContext) {
+func FavoriteList(_ context.Context, c *app.RequestContext) {
 	var videoList []models.Video
 
-	// 按照投稿时间降序，一次最多30条
-	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
+	var videoIdList []int
+
+	id := c.Query("user_id")
+
+	models.Db.Table("user_favor_videos").Select("video_id").Where("user_id = ?", id).Find(&videoIdList)
+
+	if len(videoIdList) > 0 {
+		models.Db.Where(videoIdList).Find(&videoList)
+	}
+
 	var user models.User
-	var nextTime int64
-	// 使用key计算得到预签名url
+
 	for i := range videoList {
 		models.Db.First(&user, videoList[i].AuthorID)
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
-		// 视频列表按时间倒序，最后一个视频是时间最早的
-		nextTime = videoList[i].UpdatedAt.Unix()
 	}
 
-	c.JSON(http.StatusOK, FeedResponse{
+	c.JSON(http.StatusOK, FavoriteListResponse{
 		Response: Response{
 			StatusCode: 0,
-			StatusMsg:  "feed getting succeeded",
+			StatusMsg:  "favorite list get succeeded",
 		},
 		VideoList: videoList,
-		NextTime:  nextTime,
 	})
 }
