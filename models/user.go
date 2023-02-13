@@ -15,6 +15,7 @@ type User struct {
 	FollowerCount uint    `gorm:"default:0" json:"follower_count"`
 	IsFollow      bool    `gorm:"-" json:"is_follow"`
 	Videos        []Video `gorm:"foreignKey:AuthorID" json:"-"`
+	Followers     []*User `gorm:"many2many:user_followers"`
 }
 
 // ValidatePassword 校验密码
