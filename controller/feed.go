@@ -2,10 +2,12 @@ package controller
 
 import (
 	"context"
+	"douyin/config"
 	"douyin/models"
 	"douyin/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"
+	"strconv"
 )
 
 type FeedResponse struct {
@@ -21,13 +23,23 @@ func Feed(_ context.Context, c *app.RequestContext) {
 	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
 	var user models.User
 	var nextTime int64
+
+	//获取token
+	token := c.Query(config.IdentityKey)
+
 	// 使用key计算得到预签名url
 	for i := range videoList {
 		models.Db.First(&user, videoList[i].AuthorID)
+		redisVideoFavorKey := GetVideoFavorKey(strconv.Itoa(videoList[i].ID))
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
-		// 视频列表按时间倒序，最后一个视频是时间最早的
+		videoList[i].FavoriteCount = uint(FindVideoFavorCount(redisVideoFavorKey, videoList[i].ID))
+		//判断是否已登录
+		if len(token) != 0 {
+			userObj, _ := c.Get(config.IdentityKey)
+			videoList[i].IsFavorite = FindVideoFavorStatus(redisVideoFavorKey, userObj.(models.User).ID)
+		}
 		nextTime = videoList[i].UpdatedAt.Unix()
 	}
 
