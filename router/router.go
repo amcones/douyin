@@ -14,7 +14,7 @@ func RegisterRoute(h *server.Hertz) {
 	apiRouter := h.Group("/douyin")
 
 	//// basic apis
-	apiRouter.GET("/feed/", controller.Feed)
+	apiRouter.GET("/feed/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.Feed}...)
 	apiRouter.GET("/user/", controller.User)
 	apiRouter.POST("/user/register/", controller.UserRegister)
 	apiRouter.POST("/user/login/", middleware.JwtMiddleware.LoginHandler)
@@ -22,7 +22,7 @@ func RegisterRoute(h *server.Hertz) {
 	apiRouter.GET("/publish/list/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.PublishList}...)
 	//
 	//// extra apis - I
-	//apiRouter.POST("/favorite/action/", controller.FavoriteAction)
+	apiRouter.POST("/favorite/action/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.FavoriteAction}...)
 	apiRouter.GET("/favorite/list/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.FavoriteList}...)
 	apiRouter.POST("/comment/action/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.CommentAction}...)
 	apiRouter.GET("/comment/list/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.CommentList}...)

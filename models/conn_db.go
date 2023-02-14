@@ -29,12 +29,27 @@ func ConnDB() {
 	}
 }
 
-var redisConn redis.Conn
+var (
+	redisConfig = config.Conf.Redis
+	RedisPool   *redis.Pool
+)
 
+// 实例化一个连接池
 func ConnRedis() {
-	redisConfig := config.Conf.Redis
-	redisConn, _ = redis.Dial(redisConfig.Net, redisConfig.Address)
+	RedisPool = &redis.Pool{
+		MaxIdle:     16,  //最初的连接数量
+		MaxActive:   0,   //连接池最大连接数量,暂时不确定用0（0表示自动定义），按需分配
+		IdleTimeout: 300, //连接关闭时间 300秒 （300秒不使用自动关闭）
+		Dial: func() (redis.Conn, error) { //要连接的redis数据库
+			return redis.Dial(redisConfig.Net, redisConfig.Address)
+		},
+	}
+}
+
+func GetRedis() redis.Conn {
+	redisConn := RedisPool.Get()
 	if _, err := redisConn.Do("AUTH", redisConfig.Password); err != nil {
 		panic(err)
 	}
+	return redisConn
 }
