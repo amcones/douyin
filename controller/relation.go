@@ -35,6 +35,7 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 	models.Db.First(&toUser, toId)
 
 	actionType := c.Query("action_type")
+
 	if actionType != "1" && actionType != "2" {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
