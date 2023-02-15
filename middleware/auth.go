@@ -76,11 +76,15 @@ func InitJwt() {
 			return e.Error()
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			c.JSON(http.StatusOK,
-				controller.Response{
-					StatusCode: int32(code),
-					StatusMsg:  message,
-				})
+			if c.FullPath() == "/douyin/feed/" {
+				controller.Feed(ctx, c)
+			} else {
+				c.JSON(http.StatusOK,
+					controller.Response{
+						StatusCode: int32(code),
+						StatusMsg:  message,
+					})
+			}
 		},
 	})
 	if err != nil {

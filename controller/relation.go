@@ -9,28 +9,10 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"gorm.io/gorm"
 	"net/http"
-	"sync"
-)
-
-var mutexMap = make(map[int]*sync.Mutex)
-
-func getOrCreateMutex(userId int) *sync.Mutex {
-	value, exists := mutexMap[userId]
-	if !exists {
-		var mutex sync.Mutex
-		mutexMap[userId] = &mutex
-		return &mutex
-	}
-	return value
-}
-
-var (
-	mutex sync.Mutex
+	"strconv"
 )
 
 func RelationAction(ctx context.Context, c *app.RequestContext) {
-	hlog.CtxDebugf(ctx, "[%v] 连接建立，准备抢锁", c.RemoteAddr())
-	mutex.Lock()
 	userObj, _ := c.Get(config.IdentityKey)
 	if userObj == nil {
 		c.JSON(http.StatusOK, Response{
@@ -41,15 +23,19 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 	}
 	fromUser := userObj.(models.User)
 
-	//mutex := *getOrCreateMutex(fromUser.ID)
-	hlog.CtxDebugf(ctx, "[%v] 拿到锁", c.RemoteAddr())
-
-	toId := c.Query("to_user_id")
+	toId, _ := strconv.Atoi(c.Query("to_user_id"))
+	if toId == fromUser.ID {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1,
+			StatusMsg:  "不能关注自己",
+		})
+		return
+	}
 	var toUser models.User
 	models.Db.First(&toUser, toId)
 
 	actionType := c.Query("action_type")
-	hlog.CtxDebugf(ctx, "[%v] action_type: %v ,mutex: %v", c.RemoteAddr(), actionType, &mutex)
+
 	if actionType != "1" && actionType != "2" {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
@@ -83,13 +69,11 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		if innerErr != nil {
 			return innerErr
 		}
-		tx.Model(&fromUser).Updates(models.User{ID: fromUser.ID, FollowCount: fromUser.FollowCount})
-		tx.Model(&toUser).Updates(models.User{ID: toUser.ID, FollowerCount: toUser.FollowerCount})
+		tx.Model(&fromUser).Update("FollowCount", fromUser.FollowCount)
+		tx.Model(&toUser).Update("FollowerCount", toUser.FollowerCount)
 		hlog.CtxDebugf(ctx, "[%v] UpdateComplete fromUser.FollowCount = %v , toUser.FollowerCount = %v", c.RemoteAddr(), fromUser.FollowCount, toUser.FollowerCount)
 		return nil
 	})
-	defer mutex.Unlock()
-	defer hlog.CtxDebugf(ctx, "[%v] 锁释放", c.RemoteAddr())
 	if err != nil {
 		hlog.CtxErrorf(ctx, "创建关注失败 from: %v to: %v %v", fromUser.ID, toUser.ID, err)
 		c.JSON(http.StatusOK, Response{

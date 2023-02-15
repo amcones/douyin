@@ -7,6 +7,7 @@ require (
 	github.com/cloudwego/hertz v0.5.1
 	github.com/gomodule/redigo v1.8.9
 	github.com/hertz-contrib/jwt v1.0.2
+	github.com/jasonlvhit/gocron v0.0.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	github.com/u2takey/ffmpeg-go v0.4.1
 	golang.org/x/crypto v0.5.0
