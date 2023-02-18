@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"gorm.io/gorm"
 	"image"
 	"image/jpeg"
 	"io"
@@ -104,6 +105,7 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 4.3 计算封面hash
+	buf.Reset()
 	tee = io.TeeReader(r, &buf)
 	coverMD5, err := utils.FileMD5(tee)
 	if err != nil {
@@ -117,8 +119,9 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 4.5 上传封面
+
 	coverKey := "covers/" + utils.GetStoragePath(coverMD5) + ".png"
-	err = utils.UploadFile(coverKey, r)
+	err = utils.UploadFile(coverKey, &buf)
 	if err != nil {
 		publishFail("封面上传失败", c)
 		return
@@ -138,6 +141,7 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 		Comments:      nil,
 	}
 	err = models.Db.Model(&user).Association("Videos").Append(&video)
+	models.Db.Model(&user).UpdateColumn("work_count", gorm.Expr("work_count + ?", 1))
 	if err != nil {
 		c.JSON(http.StatusOK,
 			Response{
@@ -157,8 +161,8 @@ func Publish(ctx context.Context, c *app.RequestContext) {
 func readFrameAsJpeg(filePath string) (io.Reader, error) {
 	buf := bytes.NewBuffer(nil)
 	err := ffmpeg.Input(filePath).
-		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", 1)}).
-		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%03d)", 1)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg", "pattern_type": "none"}).
 		WithOutput(buf, os.Stdout).
 		Run()
 	if err != nil {
