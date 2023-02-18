@@ -34,7 +34,7 @@ var (
 	RedisPool   *redis.Pool
 )
 
-// 实例化一个连接池
+// ConnRedis 实例化一个连接池
 func ConnRedis() {
 	RedisPool = &redis.Pool{
 		MaxIdle:     16,  //最初的连接数量

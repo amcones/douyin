@@ -1,21 +1,43 @@
 package models
 
 import (
+	"douyin/common"
 	"errors"
+	"github.com/gomodule/redigo/redis"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"log"
+	"strconv"
 )
 
 type User struct {
 	ID            int     `json:"id"`
 	Name          string  `gorm:"type:varchar(32) not null;uniqueIndex" json:"name"`
 	Password      string  `gorm:"type:varchar(255) not null;" json:"-"`
-	FollowCount   uint    `gorm:"default:0" json:"follow_count"`
-	FollowerCount uint    `gorm:"default:0" json:"follower_count"`
+	FollowCount   uint    `gorm:"-" json:"follow_count"`
+	FollowerCount uint    `gorm:"-" json:"follower_count"`
 	IsFollow      bool    `gorm:"-" json:"is_follow"`
 	Videos        []Video `gorm:"foreignKey:AuthorID" json:"-"`
-	Followers     []*User `gorm:"many2many:user_followers"`
+	Followers     []*User `gorm:"many2many:user_followers" json:"-"`
+}
+
+func (user *User) FetchRedisData() bool {
+	conn := GetRedis()
+	data, err := redis.Values(conn.Do("HGETALL", common.GetRedisRelationField(user.ID)))
+	if err != nil {
+		return false
+	}
+	for i := 0; i < len(data); i += 2 {
+		key := string(data[i].([]uint8))
+		value := string(data[i+1].([]uint8))
+		intValue, _ := strconv.Atoi(value)
+		if key == common.RedisFollowerField {
+			user.FollowerCount = uint(intValue)
+		} else if key == common.RedisFolloweeField {
+			user.FollowCount = uint(intValue)
+		}
+	}
+	return true
 }
 
 // ValidatePassword 校验密码

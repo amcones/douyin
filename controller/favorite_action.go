@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/config"
 	"douyin/models"
 	"fmt"
@@ -10,12 +11,12 @@ import (
 	"net/http"
 )
 
-// 获取 redis key
+// GetVideoFavorKey 获取 redis key
 func GetVideoFavorKey(videoId string) string {
-	return PrefixFavorVideo + KeySplit + videoId
+	return common.RedisPrefixFavorVideo + common.RedisKeySplit + videoId
 }
 
-// 判断点赞状态
+// FindVideoFavorStatus 判断点赞状态
 func FindVideoFavorStatus(key string, userId int) bool {
 	redisConn := models.GetRedis()
 	isMember, err := redis.Bool(redisConn.Do("SISMEMBER", key, userId))
@@ -25,7 +26,7 @@ func FindVideoFavorStatus(key string, userId int) bool {
 	return isMember
 }
 
-// 获取点赞数
+// FindVideoFavorCount 获取点赞数
 func FindVideoFavorCount(key string, videoId int) int {
 	redisConn := models.GetRedis()
 	count, err := redis.Int(redisConn.Do("SCARD", key))
