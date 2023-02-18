@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/config"
 	"douyin/models"
 	"errors"
@@ -11,6 +12,25 @@ import (
 	"net/http"
 	"strconv"
 )
+
+// doRedisWatch 开启redis的关注事务相关处理
+func doRedisFollowHandle(ctx context.Context, fromUser *models.User, toUser *models.User, offset int) error {
+	redisConn := models.GetRedis()
+	var innerErr error
+	innerErr = redisConn.Send("HINCRBY", common.GetRedisRelationField(fromUser.ID), common.RedisFolloweeField, offset)
+	if innerErr != nil {
+		return innerErr
+	}
+	innerErr = redisConn.Send("HINCRBY", common.GetRedisRelationField(toUser.ID), common.RedisFollowerField, offset)
+	if innerErr != nil {
+		return innerErr
+	}
+	_, innerErr = redisConn.Do("")
+	if innerErr != nil {
+		return innerErr
+	}
+	return nil
+}
 
 func RelationAction(ctx context.Context, c *app.RequestContext) {
 	userObj, _ := c.Get(config.IdentityKey)
@@ -56,22 +76,18 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		if (dbExists && actionType == "1") || (!dbExists && actionType == "2") {
 			return errors.New("重复操作")
 		}
-		hlog.CtxDebugf(ctx, "[%v] fromUser.FollowCount = %v , toUser.FollowerCount = %v", c.RemoteAddr(), fromUser.FollowCount, toUser.FollowerCount)
+		offset := 0
 		if actionType == "1" {
+			offset = 1
 			innerErr = follower.Append(&fromUser)
-			fromUser.FollowCount += 1
-			toUser.FollowerCount += 1
 		} else if actionType == "2" {
+			offset = -1
 			innerErr = follower.Delete(&fromUser)
-			fromUser.FollowCount -= 1
-			toUser.FollowerCount -= 1
 		}
+		innerErr = doRedisFollowHandle(ctx, &fromUser, &toUser, offset)
 		if innerErr != nil {
 			return innerErr
 		}
-		tx.Model(&fromUser).Update("FollowCount", fromUser.FollowCount)
-		tx.Model(&toUser).Update("FollowerCount", toUser.FollowerCount)
-		hlog.CtxDebugf(ctx, "[%v] UpdateComplete fromUser.FollowCount = %v , toUser.FollowerCount = %v", c.RemoteAddr(), fromUser.FollowCount, toUser.FollowerCount)
 		return nil
 	})
 	if err != nil {
