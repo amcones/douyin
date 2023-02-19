@@ -32,6 +32,6 @@ func RegisterRoute(h *server.Hertz) {
 	//apiRouter.GET("/relation/follow/list/", controller.FollowList)
 	//apiRouter.GET("/relation/follower/list/", controller.FollowerList)
 	//apiRouter.GET("/relation/friend/list/", controller.FriendList)
-	//apiRouter.GET("/message/chat/", controller.MessageChat)
-	//apiRouter.POST("/message/action/", controller.MessageAction)
+	apiRouter.GET("/message/chat/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.MessageChat}...)
+	apiRouter.POST("/message/action/", []app.HandlerFunc{middleware.JwtMiddleware.MiddlewareFunc(), controller.MessageAction}...)
 }
