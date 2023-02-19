@@ -38,7 +38,9 @@ func Feed(_ context.Context, c *app.RequestContext) {
 		//判断是否已登录
 		if len(token) != 0 {
 			userObj, _ := c.Get(config.IdentityKey)
-			videoList[i].IsFavorite = FindVideoFavorStatus(redisVideoFavorKey, userObj.(models.User).ID)
+			if userObj != nil {
+				videoList[i].IsFavorite = FindVideoFavorStatus(redisVideoFavorKey, userObj.(models.User).ID)
+			}
 		}
 		nextTime = videoList[i].UpdatedAt.Unix()
 	}

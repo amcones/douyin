@@ -11,14 +11,22 @@ import (
 )
 
 type User struct {
-	ID            int     `json:"id"`
-	Name          string  `gorm:"type:varchar(32) not null;uniqueIndex" json:"name"`
-	Password      string  `gorm:"type:varchar(255) not null;" json:"-"`
-	FollowCount   uint    `gorm:"-" json:"follow_count"`
-	FollowerCount uint    `gorm:"-" json:"follower_count"`
-	IsFollow      bool    `gorm:"-" json:"is_follow"`
-	Videos        []Video `gorm:"foreignKey:AuthorID" json:"-"`
-	Followers     []*User `gorm:"many2many:user_followers" json:"-"`
+	ID                 int     `json:"id"`
+	Name               string  `gorm:"type:varchar(32) not null;uniqueIndex" json:"name"`
+	Password           string  `gorm:"type:varchar(255) not null;" json:"-"`
+	FollowCount        uint    `gorm:"-" json:"follow_count"`
+	FollowerCount      uint    `gorm:"-" json:"follower_count"`
+	IsFollow           bool    `gorm:"-" json:"is_follow"`
+	Videos             []Video `gorm:"foreignKey:AuthorID" json:"-"`
+	Followers          []*User `gorm:"many2many:user_followers" json:"-"`
+	Avatar             string  `gorm:"-" json:"avatar"`
+	AvatarKey          string  `gorm:"default:avatar/avatar.jpeg" json:"-"`
+	BackgroundImage    string  `gorm:"-" json:"background_image"`
+	BackgroundImageKey string  `gorm:"default:background/background.jpeg" json:"-"`
+	Signature          string  `gorm:"default:这个人很懒，还没有签名" json:"signature"`
+	TotalFavorited     int64   `gorm:"default:0" json:"total_favorited"`
+	WorkCount          int64   `gorm:"default:0" json:"work_count"`
+	FavoriteCount      int64   `gorm:"default:0" json:"favorite_count"`
 }
 
 func (user *User) FetchRedisData() bool {
