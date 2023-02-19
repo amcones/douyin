@@ -29,9 +29,9 @@ func RegisterRoute(h *server.Hertz) {
 	//
 	//// extra apis - II
 	apiRouter.POST("/relation/action/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.RelationAction}...)
-	//apiRouter.GET("/relation/follow/list/", controller.FollowList)
-	//apiRouter.GET("/relation/follower/list/", controller.FollowerList)
-	//apiRouter.GET("/relation/friend/list/", controller.FriendList)
+	apiRouter.GET("/relation/follow/list/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.FollowList}...)
+	apiRouter.GET("/relation/follower/list/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.FollowerList}...)
+	apiRouter.GET("/relation/friend/list/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.FriendList}...)
 	//apiRouter.GET("/message/chat/", controller.MessageChat)
 	//apiRouter.POST("/message/action/", controller.MessageAction)
 }

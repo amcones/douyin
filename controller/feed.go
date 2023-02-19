@@ -17,7 +17,7 @@ type FeedResponse struct {
 }
 
 func Feed(_ context.Context, c *app.RequestContext) {
-	var videoList []models.Video
+	var videoList []models.Video = nil
 
 	// 按照投稿时间降序，一次最多30条
 	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)

@@ -14,7 +14,7 @@ type FavoriteListResponse struct {
 }
 
 func FavoriteList(_ context.Context, c *app.RequestContext) {
-	var videoList []models.Video
+	var videoList []models.Video = nil
 
 	var videoIdList []int
 
