@@ -55,6 +55,7 @@ func UploadFile(key string, file io.Reader) error {
 func GetSignUrl(key string) string {
 	ctx := context.Background()
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 	redisKey := common.RedisPrefixCos + common.RedisKeySplit + key
 	signedUrl, err := redis.String(redisConn.Do("GET", redisKey))
 	if err == nil && signedUrl != "" {
