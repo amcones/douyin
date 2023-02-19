@@ -12,6 +12,7 @@ const (
 	RedisPrefixRelation   = "relation:user"
 	RedisFollowerField    = "follower"
 	RedisFolloweeField    = "followee"
+	RedisPrefixCos        = "cos:presign"
 )
 
 var (
