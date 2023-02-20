@@ -14,7 +14,9 @@ type FavoriteListResponse struct {
 }
 
 func FavoriteList(_ context.Context, c *app.RequestContext) {
-	var videoList []models.Video
+	var videoList []models.Video = nil
+	var redisConn = models.GetRedis()
+	var err error
 
 	var videoIdList []int
 
@@ -33,6 +35,15 @@ func FavoriteList(_ context.Context, c *app.RequestContext) {
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
+		if videoList[i].FavoriteCount, err = videoList[i].GetFavoriteCount(redisConn); err != nil {
+			c.JSON(http.StatusOK, FavoriteListResponse{
+				Response: Response{
+					StatusCode: 1,
+					StatusMsg:  "喜欢列表请求出错",
+				},
+				VideoList: nil,
+			})
+		}
 	}
 
 	c.JSON(http.StatusOK, FavoriteListResponse{

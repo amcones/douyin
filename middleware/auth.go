@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/config"
 	"douyin/controller"
 	"douyin/models"
@@ -15,13 +16,9 @@ import (
 	"time"
 )
 
-var (
-	JwtMiddleware *jwt.HertzJWTMiddleware
-)
-
 func InitJwt() {
 	var err error
-	JwtMiddleware, err = jwt.New(&jwt.HertzJWTMiddleware{
+	common.JwtMiddleware, err = jwt.New(&jwt.HertzJWTMiddleware{
 		Realm:         "douyin",
 		Key:           []byte(config.Conf.JWT.SecretKey),
 		Timeout:       time.Hour,

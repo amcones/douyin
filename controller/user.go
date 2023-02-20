@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/models"
 	"douyin/utils"
 	"errors"
@@ -12,7 +13,7 @@ import (
 
 type UserResponse struct {
 	Response
-	User models.User
+	User models.User `json:"user"`
 }
 
 type UserRegisterResponse struct {
@@ -25,17 +26,27 @@ func User(_ context.Context, c *app.RequestContext) {
 	id := c.Query("user_id")
 	var user models.User
 	result := models.Db.First(&user, id)
+	if result.Error != nil {
+		c.JSON(http.StatusOK, UserResponse{
+			Response: Response{0, "成功"},
+			User:     user,
+		})
+		return
+	}
+	user.Avatar = utils.GetSignUrl(user.AvatarKey)
+	user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{1, "cannot find user"},
+			Response: Response{1, "未找到用户"},
 			User:     user,
 		})
-	} else {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{0, "succeeded"},
-			User:     user,
-		})
+		return
 	}
+	user.FetchRedisData()
+	c.JSON(http.StatusOK, UserResponse{
+		Response: Response{0, "成功"},
+		User:     user,
+	})
 }
 
 func UserRegister(_ context.Context, c *app.RequestContext) {
@@ -56,7 +67,7 @@ func UserRegister(_ context.Context, c *app.RequestContext) {
 		return
 	}
 	user := models.CreateUserInfo(username, password)
-	token, _, _ := utils.CreateUserToken(user)
+	token, _, _ := common.JwtMiddleware.TokenGenerator(user)
 	c.JSON(http.StatusOK, UserRegisterResponse{
 		Response: Response{0, "ok"},
 		Token:    token,
