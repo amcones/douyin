@@ -15,6 +15,7 @@ const (
 	RedisFolloweeField    = "followee"
 	RedisFavoriteField    = "favorite"
 	RedisFavoritedField   = "favorited"
+	RedisPrefixCos        = "cos:presign"
 )
 
 var (

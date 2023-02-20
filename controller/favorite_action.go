@@ -16,6 +16,7 @@ import (
 // doRedisWatch 开启redis的点赞事务相关处理
 func doRedisFavorHandle(videoId int, userId int, authorId int, offset int) error {
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 	var innerErr error
 	innerErr = redisConn.Send("HINCRBY", common.RedisPrefixFavorVideo, videoId, offset)
 	if innerErr != nil {

@@ -17,6 +17,7 @@ type PublishListResponse struct {
 // PublishList 根据id查询用户所有投稿视频
 func PublishList(_ context.Context, c *app.RequestContext) {
 	var redisConn = models.GetRedis()
+	defer redisConn.Close()
 	var err error
 
 	userObj, _ := c.Get(config.IdentityKey)

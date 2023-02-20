@@ -2,7 +2,10 @@ package utils
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/config"
+	"douyin/models"
+	"github.com/gomodule/redigo/redis"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"io"
 	"log"
@@ -51,10 +54,33 @@ func UploadFile(key string, file io.Reader) error {
 // GetSignUrl 返回预签名Url
 func GetSignUrl(key string) string {
 	ctx := context.Background()
+	redisConn := models.GetRedis()
+	defer redisConn.Close()
+	redisKey := common.RedisPrefixCos + common.RedisKeySplit + key
+	signedUrl, err := redis.String(redisConn.Do("GET", redisKey))
+	if err == nil && signedUrl != "" {
+		return signedUrl
+	}
 	presignedUrl, err := client.Object.GetPresignedURL(ctx, http.MethodGet, key, secretId, secretKey, time.Hour, nil)
 	if err != nil {
 		log.Println(err)
 		return ""
 	}
+	err = redisConn.Send("SET", redisKey, presignedUrl.String())
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	err = redisConn.Send("EXPIRE", redisKey, 60*60-1)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	_, err = redisConn.Do("")
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	redisConn.Close()
 	return presignedUrl.String()
 }

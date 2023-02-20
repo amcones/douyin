@@ -13,9 +13,10 @@ import (
 	"strconv"
 )
 
-// doRedisWatch 开启redis的关注事务相关处理
+// doRedisFollowHandle 开启redis的关注事务相关处理
 func doRedisFollowHandle(ctx context.Context, fromUser *models.User, toUser *models.User, offset int) error {
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 	var innerErr error
 	innerErr = redisConn.Send("HINCRBY", common.GetRedisRelationField(fromUser.ID), common.RedisFolloweeField, offset)
 	if innerErr != nil {

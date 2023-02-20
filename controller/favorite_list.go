@@ -16,6 +16,7 @@ type FavoriteListResponse struct {
 func FavoriteList(_ context.Context, c *app.RequestContext) {
 	var videoList []models.Video = nil
 	var redisConn = models.GetRedis()
+	defer redisConn.Close()
 	var err error
 
 	var videoIdList []int
