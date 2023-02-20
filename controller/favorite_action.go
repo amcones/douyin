@@ -19,6 +19,7 @@ func GetVideoFavorKey(videoId string) string {
 // FindVideoFavorStatus 判断点赞状态
 func FindVideoFavorStatus(key string, userId int) bool {
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 	isMember, err := redis.Bool(redisConn.Do("SISMEMBER", key, userId))
 	if err != nil {
 		panic(err)
@@ -29,6 +30,7 @@ func FindVideoFavorStatus(key string, userId int) bool {
 // FindVideoFavorCount 获取点赞数
 func FindVideoFavorCount(key string, videoId int) int {
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 	count, err := redis.Int(redisConn.Do("SCARD", key))
 	// redis 查找失败，从mysql获取
 	if err != nil {
@@ -51,6 +53,7 @@ func FavoriteAction(_ context.Context, c *app.RequestContext) {
 	actionType := c.Query("action_type")
 	videoFavorKey := GetVideoFavorKey(videoId)
 	redisConn := models.GetRedis()
+	defer redisConn.Close()
 
 	//更新redis
 	if actionType == "1" {
