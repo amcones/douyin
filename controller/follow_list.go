@@ -16,6 +16,7 @@ type FollowListResponse struct {
 func FollowList(_ context.Context, c *app.RequestContext) {
 	var followList []models.User = nil
 	var followIDList []int64 = nil
+
 	id := c.Query("user_id")
 	models.Db.Table("user_followers").Select("user_id").Where("follower_id = ?", id).Find(&followIDList)
 	for _, i := range followIDList {
@@ -23,6 +24,7 @@ func FollowList(_ context.Context, c *app.RequestContext) {
 		models.Db.First(&user, i)
 		user.Avatar = utils.GetSignUrl(user.AvatarKey)
 		user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
+		user.IsFollow = true
 		followList = append(followList, user)
 	}
 	c.JSON(http.StatusOK, FollowListResponse{

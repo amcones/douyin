@@ -16,6 +16,10 @@ type PublishListResponse struct {
 
 // PublishList 根据id查询用户所有投稿视频
 func PublishList(_ context.Context, c *app.RequestContext) {
+	var redisConn = models.GetRedis()
+	defer redisConn.Close()
+	var err error
+
 	userObj, _ := c.Get(config.IdentityKey)
 	if userObj == nil {
 		c.JSON(http.StatusOK, PublishListResponse{
@@ -37,6 +41,15 @@ func PublishList(_ context.Context, c *app.RequestContext) {
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
 		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
+		if videoList[i].FavoriteCount, err = videoList[i].GetFavoriteCount(redisConn); err != nil {
+			c.JSON(http.StatusOK, PublishListResponse{
+				Response: Response{
+					StatusCode: 1,
+					StatusMsg:  "视频列表请求出错",
+				},
+				VideoList: nil,
+			})
+		}
 	}
 	c.JSON(http.StatusOK, PublishListResponse{
 		Response: Response{

@@ -45,7 +45,29 @@ func (user *User) FetchRedisData() bool {
 			user.FollowCount = uint(intValue)
 		}
 	}
+	// 获取总被赞数
+	favorData, err := redis.Values(conn.Do("HGETALL", common.GetRedisUserField(user.ID)))
+	if err != nil {
+		return false
+	}
+	for i := 0; i < len(favorData); i += 2 {
+		key := string(favorData[i].([]uint8))
+		value := string(favorData[i+1].([]uint8))
+		intValue, _ := strconv.Atoi(value)
+		if key == common.RedisFavoriteField {
+			user.FavoriteCount = int64(uint(intValue))
+		} else if key == common.RedisFavoritedField {
+			user.TotalFavorited = int64(uint(intValue))
+		}
+	}
+
 	return true
+}
+
+func (user *User) GetIsFollow(userId int) bool {
+	var count int64
+	Db.Table("user_followers").Where("user_id = ? AND follower_id = ?", userId, user.ID).Count(&count)
+	return count != 0
 }
 
 // ValidatePassword 校验密码

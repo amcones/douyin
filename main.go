@@ -16,11 +16,6 @@ func main() {
 	models.ConnDB()
 	models.ConnRedis()
 
-	// 定时持久化redis缓存到数据库
-	sc := models.RunTask()
-	defer close(sc)
-	defer models.Scheduler.Clear()
-
 	middleware.InitJwt()
 
 	router.RegisterRoute(h)

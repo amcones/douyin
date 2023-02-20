@@ -9,9 +9,12 @@ import (
 const (
 	RedisKeySplit         = ":"
 	RedisPrefixFavorVideo = "favorite:video"
+	RedisPrefixFavorUser  = "favorite:user"
 	RedisPrefixRelation   = "relation:user"
 	RedisFollowerField    = "follower"
 	RedisFolloweeField    = "followee"
+	RedisFavoriteField    = "favorite"
+	RedisFavoritedField   = "favorited"
 	RedisPrefixCos        = "cos:presign"
 )
 
@@ -21,4 +24,8 @@ var (
 
 func GetRedisRelationField(userId int) string {
 	return RedisPrefixRelation + RedisKeySplit + strconv.Itoa(userId)
+}
+
+func GetRedisUserField(userId int) string {
+	return RedisPrefixFavorUser + RedisKeySplit + strconv.Itoa(userId)
 }

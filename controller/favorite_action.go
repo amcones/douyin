@@ -5,75 +5,93 @@ import (
 	"douyin/common"
 	"douyin/config"
 	"douyin/models"
-	"fmt"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/gomodule/redigo/redis"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
-// GetVideoFavorKey 获取 redis key
-func GetVideoFavorKey(videoId string) string {
-	return common.RedisPrefixFavorVideo + common.RedisKeySplit + videoId
-}
-
-// FindVideoFavorStatus 判断点赞状态
-func FindVideoFavorStatus(key string, userId int) bool {
+// doRedisWatch 开启redis的点赞事务相关处理
+func doRedisFavorHandle(videoId int, userId int, authorId int, offset int) error {
 	redisConn := models.GetRedis()
 	defer redisConn.Close()
-	isMember, err := redis.Bool(redisConn.Do("SISMEMBER", key, userId))
-	if err != nil {
-		panic(err)
+	var innerErr error
+	innerErr = redisConn.Send("HINCRBY", common.RedisPrefixFavorVideo, videoId, offset)
+	if innerErr != nil {
+		return innerErr
 	}
-	return isMember
+	innerErr = redisConn.Send("HINCRBY", common.GetRedisUserField(userId), common.RedisFavoriteField, offset)
+	if innerErr != nil {
+		return innerErr
+	}
+	innerErr = redisConn.Send("HINCRBY", common.GetRedisUserField(authorId), common.RedisFavoritedField, offset)
+	if innerErr != nil {
+		return innerErr
+	}
+	_, innerErr = redisConn.Do("")
+	if innerErr != nil {
+		return innerErr
+	}
+	return nil
 }
 
-// FindVideoFavorCount 获取点赞数
-func FindVideoFavorCount(key string, videoId int) int {
-	redisConn := models.GetRedis()
-	defer redisConn.Close()
-	count, err := redis.Int(redisConn.Do("SCARD", key))
-	// redis 查找失败，从mysql获取
-	if err != nil {
-		models.Db.Model(&models.Video{}).Select("favorite_count").Where("id = ?", videoId).Find(count)
-		fmt.Printf("ERROR: " + err.Error())
-	}
-	return count
-}
-
-func FavoriteAction(_ context.Context, c *app.RequestContext) {
+func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 	userObj, _ := c.Get(config.IdentityKey)
-
 	if userObj == nil {
-		c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "token获取失败"})
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1,
+			StatusMsg:  "token获取失败",
+		})
 		return
 	}
 
-	userId := userObj.(models.User).ID
-	videoId := c.Query("video_id")
+	user := userObj.(models.User)
+	videoId, _ := strconv.Atoi(c.Query("video_id"))
 	actionType := c.Query("action_type")
-	videoFavorKey := GetVideoFavorKey(videoId)
-	redisConn := models.GetRedis()
-	defer redisConn.Close()
 
-	//更新redis
-	if actionType == "1" {
-		if _, err := redisConn.Do("SADD", videoFavorKey, userId); err != nil {
-			c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "database operate failed"})
-			panic(err)
-		}
-	} else if actionType == "2" {
-		if _, err := redisConn.Do("SREM", videoFavorKey, userId); err != nil {
-			c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "database operate failed"})
-			panic(err)
-		}
-	} else {
-		c.JSON(http.StatusOK, FavoriteListResponse{
-			Response: Response{
-				StatusCode: 1,
-				StatusMsg:  "action_type is valid",
-			},
+	if actionType != "1" && actionType != "2" {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1,
+			StatusMsg:  "参数错误",
 		})
+		return
 	}
 
-	c.JSON(http.StatusOK, Response{StatusCode: 0})
+	err := models.Db.Transaction(func(tx *gorm.DB) error {
+		var video models.Video
+		var innerErr error
+		tx.First(&video, videoId)
+		dbExists := video.GetIsFavorite(tx, user.ID)
+		if (dbExists && actionType == "1") || (!dbExists && actionType == "2") {
+			return errors.New("重复操作")
+		}
+		offset := 0
+		if actionType == "1" {
+			offset = 1
+			innerErr = tx.Model(&video).Association("FavoriteUsers").Append(&user)
+		} else if actionType == "2" {
+			offset = -1
+			innerErr = tx.Model(&video).Association("FavoriteUsers").Delete(&user)
+		}
+		innerErr = doRedisFavorHandle(video.ID, user.ID, video.AuthorID, offset)
+		if innerErr != nil {
+			return innerErr
+		}
+		return nil
+	})
+
+	if err != nil {
+		hlog.CtxErrorf(ctx, "点赞操作失败 videoId: %v userId: %v %v", videoId, user.ID, err)
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1,
+			StatusMsg:  "点赞异常",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		StatusCode: 0,
+		StatusMsg:  "成功",
+	})
 }
