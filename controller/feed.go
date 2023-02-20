@@ -4,7 +4,6 @@ import (
 	"context"
 	"douyin/config"
 	"douyin/models"
-	"douyin/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"
 )
@@ -16,29 +15,11 @@ type FeedResponse struct {
 }
 
 func GetVideoInfo(videoList []models.Video, token string, c *app.RequestContext) error {
-	var err error
-	var user models.User
 	var userObj interface{}
-	redisConn := models.GetRedis()
 	if len(token) != 0 {
 		userObj, _ = c.Get(config.IdentityKey)
 	}
-
-	for i := range videoList {
-		models.Db.First(&user, videoList[i].AuthorID)
-		videoList[i].Author = user
-		// 使用key计算得到预签名url
-		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
-		videoList[i].CoverUrl = utils.GetSignUrl(videoList[i].CoverKey)
-		// 获取点赞数
-		if videoList[i].FavoriteCount, err = videoList[i].GetFavoriteCount(redisConn); err != nil {
-			return err
-		}
-		// 判断是否已登录，若登录，获取点赞状态
-		if userObj != nil {
-			videoList[i].IsFavorite = videoList[i].GetIsFavorite(models.Db, userObj.(models.User).ID)
-		}
-	}
+	FetchVideoList(videoList, userObj)
 	return nil
 }
 

@@ -7,15 +7,16 @@ import (
 
 // 用来存放一些共用变量，防止循环引用
 const (
-	RedisKeySplit         = ":"
-	RedisPrefixFavorVideo = "favorite:video"
-	RedisPrefixFavorUser  = "favorite:user"
-	RedisPrefixRelation   = "relation:user"
-	RedisFollowerField    = "follower"
-	RedisFolloweeField    = "followee"
-	RedisFavoriteField    = "favorite"
-	RedisFavoritedField   = "favorited"
-	RedisPrefixCos        = "cos:presign"
+	RedisKeySplit           = ":"
+	RedisPrefixCommentVideo = "comment:video"
+	RedisPrefixFavorVideo   = "favorite:video"
+	RedisPrefixFavorUser    = "favorite:user"
+	RedisPrefixRelation     = "relation:user"
+	RedisFollowerField      = "follower"
+	RedisFolloweeField      = "followee"
+	RedisFavoriteField      = "favorite"
+	RedisFavoritedField     = "favorited"
+	RedisPrefixCos          = "cos:presign"
 )
 
 var (

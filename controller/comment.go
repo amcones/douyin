@@ -2,10 +2,13 @@ package controller
 
 import (
 	"context"
+	"douyin/common"
 	"douyin/config"
 	"douyin/models"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"gorm.io/gorm"
 	"net/http"
 	"sort"
 	"strconv"
@@ -21,15 +24,45 @@ type CommentListResponse struct {
 	Comments []models.Comment `json:"comment_list,-"`
 }
 
+func AddCommentRedis(videoID int, offset int) error {
+	redisConn := models.GetRedis()
+	defer redisConn.Close()
+	_, err := redisConn.Do("HINCRBY", common.RedisPrefixCommentVideo, videoID, offset)
+	return err
+}
+
 // AddComment 把评论加入到数据库
-func AddComment(comment *models.Comment) {
-	models.Db.Create(comment)
+func AddComment(comment *models.Comment) bool {
+	err := models.Db.Transaction(func(tx *gorm.DB) error {
+		err := AddCommentRedis(comment.VideoID, 1)
+		if err != nil {
+			return err
+		}
+		tx.Create(comment)
+		return nil
+	})
+	if err != nil {
+		hlog.Errorf("评论插入数据库失败 %v", err)
+		return false
+	}
+	return true
 }
 
 // DeleteComment 删除某个视频下的某条评论
-func DeleteComment(commentID int) {
-	// 删除评论
-	models.Db.Delete(models.Comment{}, commentID)
+func DeleteComment(commentID int, videoID int) bool {
+	err := models.Db.Transaction(func(tx *gorm.DB) error {
+		err := AddCommentRedis(videoID, -1)
+		if err != nil {
+			return err
+		}
+		tx.Delete(models.Comment{}, commentID)
+		return nil
+	})
+	if err != nil {
+		hlog.Errorf("评论删除数据库失败 %v", err)
+		return false
+	}
+	return true
 }
 
 // CommentAction no practical effect, just check if token is valid
@@ -49,19 +82,32 @@ func CommentAction(_ context.Context, c *app.RequestContext) {
 			UserID:  userObj.(models.User).ID,
 			VideoID: videoID,
 		}
-		AddComment(newComment)
-		c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 0}, *newComment})
-	} else if actionType == "2" {
+		result := AddComment(newComment)
+		if result {
+			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 0}, *newComment})
+		} else {
+			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 1}, nil})
+		}
+		return
+	}
+	if actionType == "2" {
 		commentID, err := strconv.Atoi(c.Query("comment_id"))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		DeleteComment(commentID)
-		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: 0, StatusMsg: "delete comment succeeded"},
-			Comment:  nil,
-		})
+		result := DeleteComment(commentID, videoID)
+		if result {
+			c.JSON(http.StatusOK, CommentActionResponse{
+				Response: Response{StatusCode: 0, StatusMsg: "删除成功"},
+				Comment:  nil,
+			})
+		} else {
+			c.JSON(http.StatusOK, CommentActionResponse{
+				Response: Response{StatusCode: 1, StatusMsg: "删除失败"},
+				Comment:  nil,
+			})
+		}
 	}
 }
 
