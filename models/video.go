@@ -2,6 +2,7 @@ package models
 
 import (
 	"douyin/common"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/gomodule/redigo/redis"
 	"gorm.io/gorm"
 	"time"
@@ -15,9 +16,9 @@ type Video struct {
 	CoverKey      string `json:"-"`
 	PlayUrl       string `gorm:"-" json:"play_url"`
 	CoverUrl      string `gorm:"-" json:"cover_url"`
-	FavoriteCount uint   `gorm:"default:0" json:"favorite_count"`
-	CommentCount  uint   `gorm:"default:0" json:"comment_count"`
-	IsFavorite    bool   `gorm:"default:0" json:"is_favorite"`
+	FavoriteCount uint   `gorm:"-" json:"favorite_count"`
+	CommentCount  uint   `gorm:"-" json:"comment_count"`
+	IsFavorite    bool   `gorm:"-" json:"is_favorite"`
 	Title         string `json:"title"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -31,11 +32,27 @@ func (video *Video) GetIsFavorite(db *gorm.DB, userId int) bool {
 	return count != 0
 }
 
-func (video *Video) GetFavoriteCount(redisConn redis.Conn) (uint, error) {
-	isExit, err := redis.Int(redisConn.Do("HEXISTS", common.RedisPrefixFavorVideo, video.ID))
+func (video *Video) FetchRedisData() {
+	redisConn := GetRedis()
+	defer redisConn.Close()
+	var err error
+	count, err := video.getRedisCount(redisConn, common.RedisPrefixFavorVideo)
+	if err != nil {
+		hlog.Errorf("Video FetchRedisData %v 失败 %v ", common.RedisPrefixFavorVideo, err)
+	}
+	video.FavoriteCount = count
+	count, _ = video.getRedisCount(redisConn, common.RedisPrefixCommentVideo)
+	if err != nil {
+		hlog.Errorf("Video FetchRedisData %v 失败 %v ", common.RedisPrefixCommentVideo, err)
+	}
+	video.CommentCount = count
+}
+
+func (video *Video) getRedisCount(redisConn redis.Conn, redisFieldName string) (uint, error) {
+	isExit, err := redis.Int(redisConn.Do("HEXISTS", redisFieldName, video.ID))
 	if isExit == 0 {
 		return 0, err
 	}
-	favorCount, err := redis.Int(redisConn.Do("HGET", common.RedisPrefixFavorVideo, video.ID))
+	favorCount, err := redis.Int(redisConn.Do("HGET", redisFieldName, video.ID))
 	return uint(favorCount), err
 }

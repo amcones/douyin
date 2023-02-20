@@ -4,7 +4,7 @@ type Message struct {
 	ID         int64  `json:"id,-"`
 	ToUserID   int64  `json:"to_user_id,-"`
 	FromUserID int64  `json:"from_user_id,-"`
-	Content    string `gorm:"type:varchar(999) not null" json:"content,-"`
+	Content    string `gorm:"type:text not null" json:"content,-"`
 	CreateTime int64  `gorm:"autoCreateTime" json:"create_time,-"`
 }
 
