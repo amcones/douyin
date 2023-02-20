@@ -26,9 +26,8 @@ func FavoriteList(_ context.Context, c *app.RequestContext) {
 		models.Db.Where(videoIdList).Find(&videoList)
 	}
 
-	var user models.User
-
 	for i := range videoList {
+		var user models.User
 		models.Db.First(&user, videoList[i].AuthorID)
 		videoList[i].Author = user
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
