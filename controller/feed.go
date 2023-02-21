@@ -28,6 +28,15 @@ func Feed(_ context.Context, c *app.RequestContext) {
 
 	// 按照投稿时间降序，一次最多30条
 	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
+	if len(videoList) == 0 {
+		c.JSON(http.StatusOK, FeedResponse{
+			Response: Response{
+				StatusCode: 0,
+				StatusMsg:  "还没有人上传视频",
+			},
+		})
+		return
+	}
 	nextTime := videoList[len(videoList)-1].UpdatedAt.Unix()
 
 	//获取token，完善视频信息
