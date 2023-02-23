@@ -84,6 +84,7 @@ func CommentAction(_ context.Context, c *app.RequestContext) {
 		}
 		result := AddComment(newComment)
 		if result {
+			newComment.CreateDateStr = newComment.CreateDate.Format("01-02")
 			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 0}, *newComment})
 		} else {
 			c.JSON(http.StatusOK, CommentActionResponse{Response{StatusCode: 1}, nil})
@@ -134,6 +135,9 @@ func CommentList(_ context.Context, c *app.RequestContext) {
 	sort.Slice(comments, func(i int, j int) bool {
 		return comments[i].CreateDate.After(comments[j].CreateDate)
 	})
+	for i := range comments {
+		comments[i].CreateDateStr = comments[i].CreateDate.Format("01-02")
+	}
 	c.JSON(http.StatusOK, CommentListResponse{
 		Response: Response{
 			StatusCode: 0,

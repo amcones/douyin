@@ -1,11 +1,14 @@
 package models
 
+import "time"
+
 type Message struct {
-	ID         int64  `json:"id,-"`
-	ToUserID   int64  `json:"to_user_id,-"`
-	FromUserID int64  `json:"from_user_id,-"`
-	Content    string `gorm:"type:text not null" json:"content,-"`
-	CreateTime int64  `gorm:"autoCreateTime" json:"create_time,-"`
+	ID            int64  `json:"id,-"`
+	ToUserID      int64  `json:"to_user_id,-"`
+	FromUserID    int64  `json:"from_user_id,-"`
+	Content       string `gorm:"type:text not null" json:"content,-"`
+	CreateTime    int64  `gorm:"autoCreateTime" json:"-"`
+	CreateTimeStr string `gorm:"-" json:"create_time,-"`
 }
 
 func GetMessagesById(userId int64, friendId int64, preMsgTime int64) []Message {
@@ -13,6 +16,9 @@ func GetMessagesById(userId int64, friendId int64, preMsgTime int64) []Message {
 	Db.Where("to_user_id = ? AND from_user_id = ? AND create_time > ?", userId, friendId, preMsgTime).
 		Or("to_user_id = ? AND from_user_id = ?  AND create_time > ?", friendId, userId, preMsgTime).
 		Find(&messageList)
+	for i := range messageList {
+		messageList[i].CreateTimeStr = time.Unix(messageList[i].CreateTime, 0).Format("2006-01-02 15:04:05")
+	}
 	return messageList
 }
 

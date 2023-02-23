@@ -22,8 +22,8 @@ type Video struct {
 	Title         string `json:"title"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-	FavoriteUsers []*User    `gorm:"many2many:user_favor_videos"` //用户与点赞视频是many to many
-	Comments      []*Comment `json:"-"`                           // 视频与评论是has many关系
+	FavoriteUsers []*User    `json:"-" gorm:"many2many:user_favor_videos"` //用户与点赞视频是many to many
+	Comments      []*Comment `json:"-"`                                    // 视频与评论是has many关系
 }
 
 func (video *Video) GetIsFavorite(db *gorm.DB, userId int) bool {
