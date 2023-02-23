@@ -25,6 +25,7 @@ func FollowList(_ context.Context, c *app.RequestContext) {
 		user.Avatar = utils.GetSignUrl(user.AvatarKey)
 		user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
 		user.IsFollow = true
+		user.FetchRedisData()
 		followList = append(followList, user)
 	}
 	c.JSON(http.StatusOK, FollowListResponse{

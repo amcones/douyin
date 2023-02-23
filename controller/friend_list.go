@@ -33,6 +33,7 @@ func FriendList(_ context.Context, c *app.RequestContext) {
 		models.Db.First(&user, i)
 		user.Avatar = utils.GetSignUrl(user.AvatarKey)
 		user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
+		user.FetchRedisData()
 		message.GetLatestMessagesById(int64(id), i)
 		friendUser := FriendUser{
 			User:    user,

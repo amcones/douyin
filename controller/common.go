@@ -14,6 +14,9 @@ func FetchVideoList(videoList []models.Video, userObj interface{}) {
 	for i := range videoList {
 		var user models.User
 		models.Db.First(&user, videoList[i].AuthorID)
+		user.Avatar = utils.GetSignUrl(user.AvatarKey)
+		user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
+		user.FetchRedisData()
 		videoList[i].Author = user
 		// 使用key计算得到预签名url
 		videoList[i].PlayUrl = utils.GetSignUrl(videoList[i].PlayKey)
