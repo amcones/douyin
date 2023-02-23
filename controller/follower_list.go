@@ -35,7 +35,7 @@ func FollowerList(_ context.Context, c *app.RequestContext) {
 		models.Db.First(&follower, i)
 		follower.Avatar = utils.GetSignUrl(user.AvatarKey)
 		follower.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
-		follower.IsFollow = follower.GetIsFollow(user.ID)
+		follower.IsFollow = user.GetIsFollow(follower.ID)
 		follower.FetchRedisData()
 		if err != nil {
 			c.JSON(http.StatusOK, FollowerListResponse{
