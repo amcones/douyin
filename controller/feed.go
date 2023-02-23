@@ -27,7 +27,7 @@ func Feed(_ context.Context, c *app.RequestContext) {
 	var videoList []models.Video = nil
 
 	// 按照投稿时间降序，一次最多30条
-	models.Db.Order("updated_at desc").Limit(30).Find(&videoList)
+	models.Db.Order("id desc").Limit(30).Find(&videoList)
 	if len(videoList) == 0 {
 		c.JSON(http.StatusOK, FeedResponse{
 			Response: Response{
