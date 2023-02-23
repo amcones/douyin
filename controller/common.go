@@ -23,6 +23,7 @@ func FetchVideoList(videoList []models.Video, userObj interface{}) {
 		// 判断是否已登录，若登录，获取点赞状态
 		if userObj != nil {
 			videoList[i].IsFavorite = videoList[i].GetIsFavorite(models.Db, userObj.(models.User).ID)
+			videoList[i].Author.IsFollow = videoList[i].Author.GetIsFollow(userObj.(models.User).ID)
 		}
 	}
 }

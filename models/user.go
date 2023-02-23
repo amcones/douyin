@@ -65,9 +65,12 @@ func (user *User) FetchRedisData() bool {
 }
 
 func (user *User) GetIsFollow(userId int) bool {
-	var count int64
-	Db.Table("user_followers").Where("user_id = ? AND follower_id = ?", userId, user.ID).Count(&count)
-	return count != 0
+	type follow struct {
+		userId     int64
+		followerId int64
+	}
+	res := Db.Table("user_followers").Where("user_id = ? AND follower_id = ?", userId, user.ID).Take(&follow{})
+	return !errors.Is(res.Error, gorm.ErrRecordNotFound)
 }
 
 // ValidatePassword 校验密码

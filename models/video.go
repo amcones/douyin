@@ -2,6 +2,7 @@ package models
 
 import (
 	"douyin/common"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/gomodule/redigo/redis"
 	"gorm.io/gorm"
@@ -27,9 +28,12 @@ type Video struct {
 }
 
 func (video *Video) GetIsFavorite(db *gorm.DB, userId int) bool {
-	var count int64
-	db.Table("user_favor_videos").Where("video_id = ? AND user_id = ?", video.ID, userId).Count(&count)
-	return count != 0
+	type favor struct {
+		videoId int64
+		userId  int64
+	}
+	res := db.Table("user_favor_videos").Where("video_id = ? AND user_id = ?", video.ID, userId).Take(&favor{})
+	return !errors.Is(res.Error, gorm.ErrRecordNotFound)
 }
 
 func (video *Video) FetchRedisData() {

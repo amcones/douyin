@@ -15,7 +15,7 @@ func RegisterRoute(h *server.Hertz) {
 
 	//// basic apis
 	apiRouter.GET("/feed/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.Feed}...)
-	apiRouter.GET("/user/", controller.User)
+	apiRouter.GET("/user/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.User}...)
 	apiRouter.POST("/user/register/", controller.UserRegister)
 	apiRouter.POST("/user/login/", common.JwtMiddleware.LoginHandler)
 	apiRouter.POST("/publish/action/", []app.HandlerFunc{common.JwtMiddleware.MiddlewareFunc(), controller.Publish}...)

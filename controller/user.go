@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"douyin/common"
+	"douyin/config"
 	"douyin/models"
 	"douyin/utils"
 	"errors"
@@ -24,6 +25,7 @@ type UserRegisterResponse struct {
 
 func User(_ context.Context, c *app.RequestContext) {
 	id := c.Query("user_id")
+	token := c.Query(config.IdentityKey)
 	var user models.User
 	result := models.Db.First(&user, id)
 	if result.Error != nil {
@@ -35,6 +37,11 @@ func User(_ context.Context, c *app.RequestContext) {
 	}
 	user.Avatar = utils.GetSignUrl(user.AvatarKey)
 	user.BackgroundImage = utils.GetSignUrl(user.BackgroundImageKey)
+	var userObj interface{}
+	if len(token) != 0 {
+		userObj, _ = c.Get(config.IdentityKey)
+		user.IsFollow = user.GetIsFollow(userObj.(models.User).ID)
+	}
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusOK, UserResponse{
 			Response: Response{1, "未找到用户"},
