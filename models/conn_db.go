@@ -48,8 +48,10 @@ func ConnRedis() {
 
 func GetRedis() redis.Conn {
 	redisConn := RedisPool.Get()
-	if _, err := redisConn.Do("AUTH", redisConfig.Password); err != nil {
-		panic(err)
+	if redisConfig.Password != "" {
+		if _, err := redisConn.Do("AUTH", redisConfig.Password); err != nil {
+			panic(err)
+		}
 	}
 	return redisConn
 }
