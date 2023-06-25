@@ -35,6 +35,6 @@ func main() {
 		}()
 		hlog.Warn("pprof 在 localhost:6060 启动，请不要在正式环境使用")
 	}
-
+	h.Use(middleware.CorsMw())
 	h.Spin()
 }

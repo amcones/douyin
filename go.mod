@@ -4,10 +4,9 @@ go 1.19
 
 require (
 	github.com/BurntSushi/toml v1.2.1
-	github.com/cloudwego/hertz v0.5.1
+	github.com/cloudwego/hertz v0.6.2
 	github.com/gomodule/redigo v1.8.9
 	github.com/hertz-contrib/jwt v1.0.2
-	github.com/jasonlvhit/gocron v0.0.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	github.com/u2takey/ffmpeg-go v0.4.1
 	golang.org/x/crypto v0.5.0
@@ -19,8 +18,8 @@ require (
 	github.com/aws/aws-sdk-go v1.38.20 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7 // indirect
-	github.com/bytedance/sonic v1.5.0 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06 // indirect
+	github.com/bytedance/sonic v1.8.1 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/cloudwego/netpoll v0.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -30,6 +29,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
+	github.com/hertz-contrib/cors v0.0.0-20230423034624-2bc83a8400f0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
